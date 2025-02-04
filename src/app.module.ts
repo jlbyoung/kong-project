@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { ServicesService } from './services/services.service';
-import { ServicesController } from './controllers/services.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Service } from './entities/service.entity';
 import { ServiceVersion } from './entities/service-version.entity';
+import { SeedingModule } from './database/seeding.module';
+import { ServicesModule } from './modules/services/services.module';
 
 @Module({
   imports: [
@@ -18,8 +18,8 @@ import { ServiceVersion } from './entities/service-version.entity';
       synchronize: true,
       autoLoadEntities: true,
     }),
+    SeedingModule,
+    ServicesModule,
   ],
-  controllers: [ServicesController],
-  providers: [ServicesService],
 })
 export class AppModule {}
