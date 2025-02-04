@@ -1,8 +1,10 @@
 export class ServiceFilterDto {
-  search?: string;
+  name?: string;
   isActive?: boolean;
   page?: number;
   limit?: number;
+  sortBy?: string;
+  sortOrder?: 'ASC' | 'DESC';
 }
 
 export class ServiceResponseDto {
@@ -10,4 +12,10 @@ export class ServiceResponseDto {
   name: string;
   description: string;
   versionsCount: number;
+  versions?: ServiceVersionResponseDto[];
+}
+
+export class ServiceVersionResponseDto {
+  id: string;
+  version: string;
 }

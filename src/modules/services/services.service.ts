@@ -1,4 +1,11 @@
-import { Get, Injectable, Param, Query } from '@nestjs/common';
+import {
+  Get,
+  Injectable,
+  NotFoundException,
+  Param,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ServiceFilterDto, ServiceResponseDto } from 'src/dtos/service.dto';
 import { ServiceVersion } from 'src/entities/service-version.entity';
@@ -19,24 +26,26 @@ export class ServicesService {
   ): Promise<[ServiceResponseDto[], number]> {
     const query = this.servicesRepository
       .createQueryBuilder('service')
-      .leftJoinAndSelect('service.versions', 'versions')
-      .where('1=1');
+      .leftJoinAndSelect('service.versions', 'versions');
 
-    if (filters.search) {
-      query.andWhere(
-        '(service.name ILIKE :search OR service.description ILIKE :search)',
-        { search: `%${filters.search}%` },
-      );
+    if (filters.name) {
+      query.andWhere('(service.name ILIKE :name)', {
+        name: `%${filters.name}%`,
+      });
     }
 
-    if (filters.isActive !== undefined) {
+    if (filters.isActive) {
       query.andWhere('service.isActive = :isActive', {
         isActive: filters.isActive,
       });
     }
 
+    if (filters.sortBy) {
+      query.orderBy(`service.${filters.sortBy}`, filters.sortOrder || 'ASC');
+    }
+
     const page = filters.page || 1;
-    const limit = filters.limit || 10;
+    const limit = filters.limit || 12;
     const skip = (page - 1) * limit;
 
     query.skip(skip).take(limit);
@@ -53,8 +62,38 @@ export class ServicesService {
       total,
     ];
   }
-  @Get()
-  findOne(@Param('id') id: string): ServiceResponseDto {
-    return { id: '', name: '', description: '', versionsCount: 1 };
+
+  @Get(':id')
+  async findOne(@Param('id') id: string): Promise<ServiceResponseDto> {
+    const service = await this.servicesRepository.findOne({
+      where: { id },
+      relations: ['versions'],
+    });
+
+    if (!service) {
+      throw new NotFoundException(`Service with ID ${id} not found`);
+    }
+
+    return {
+      id: service.id,
+      name: service.name,
+      description: service.description,
+      versionsCount: service.versions.length,
+      versions: service.versions.map((version) => ({
+        id: version.id,
+        version: version.version,
+      })),
+    };
+  }
+
+  @Get(':id/versions')
+  async findAllVersions(@Param('id') id: string): Promise<ServiceVersion[]> {
+    console.log(id);
+    const serviceVersions = this.versionsRepository.find({
+      where: { service: { id: id }, isActive: true },
+      order: { releasedAt: 'DESC' },
+    });
+
+    return serviceVersions;
   }
 }
