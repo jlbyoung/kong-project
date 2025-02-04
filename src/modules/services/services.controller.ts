@@ -1,6 +1,10 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { ServicesService } from './services.service';
-import { ServiceFilterDto, ServiceResponseDto } from '../../dtos/service.dto';
+import {
+  CreateServiceDto,
+  ServiceFilterDto,
+  ServiceResponseDto,
+} from '../../dtos/service.dto';
 import { ServiceVersion } from 'src/entities/service-version.entity';
 
 @Controller('services')
@@ -32,5 +36,10 @@ export class ServicesController {
   async findAllVersions(@Param('id') id: string): Promise<ServiceVersion[]> {
     const services = await this.service.findAllVersions(id);
     return services;
+  }
+
+  @Post()
+  create(@Body() createServiceDto: CreateServiceDto) {
+    return this.service.create(createServiceDto);
   }
 }

@@ -1,13 +1,10 @@
-import {
-  Get,
-  Injectable,
-  NotFoundException,
-  Param,
-  Post,
-  Query,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, Param, Query } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ServiceFilterDto, ServiceResponseDto } from 'src/dtos/service.dto';
+import {
+  CreateServiceDto,
+  ServiceFilterDto,
+  ServiceResponseDto,
+} from 'src/dtos/service.dto';
 import { ServiceVersion } from 'src/entities/service-version.entity';
 import { Service } from 'src/entities/service.entity';
 import { Repository } from 'typeorm';
@@ -20,7 +17,7 @@ export class ServicesService {
     @InjectRepository(ServiceVersion)
     private versionsRepository: Repository<ServiceVersion>,
   ) {}
-  @Get()
+
   async findAll(
     @Query() filters: ServiceFilterDto,
   ): Promise<[ServiceResponseDto[], number]> {
@@ -63,7 +60,6 @@ export class ServicesService {
     ];
   }
 
-  @Get(':id')
   async findOne(@Param('id') id: string): Promise<ServiceResponseDto> {
     const service = await this.servicesRepository.findOne({
       where: { id },
@@ -86,7 +82,6 @@ export class ServicesService {
     };
   }
 
-  @Get(':id/versions')
   async findAllVersions(@Param('id') id: string): Promise<ServiceVersion[]> {
     console.log(id);
     const serviceVersions = this.versionsRepository.find({
@@ -95,5 +90,10 @@ export class ServicesService {
     });
 
     return serviceVersions;
+  }
+
+  async create(createServiceDto: CreateServiceDto): Promise<Service> {
+    const service = this.servicesRepository.create(createServiceDto);
+    return await this.servicesRepository.save(service);
   }
 }

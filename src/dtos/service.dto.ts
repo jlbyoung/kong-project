@@ -19,3 +19,8 @@ export class ServiceVersionResponseDto {
   id: string;
   version: string;
 }
+
+export class CreateServiceDto {
+  name: string;
+  description: string;
+}
