@@ -15,11 +15,7 @@ $ npm install
 ## Run the project
 
 ```bash
-# no postgres locally
 $ docker compose up --build
-
-# postgres installed locally
-$ npm run start
 ```
 
 ## API Endpoints
