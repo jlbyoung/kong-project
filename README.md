@@ -39,17 +39,28 @@ Query Parameters:
 
 Get information about a specific service, including its versions.
 
+### GET /services/:id/versions
+
+Get versions of a specific service.
+
+### POST /services
+
+Create a service.
+
+- `name`: Name of Service
+- `description`: Description of Service
+
 ## Database
 
 Login to verify records and tables.
 
 ```bash
 # postgres
-$ http://localhost:5050
+http://localhost:5050
 
 # login
-$ admin@admin.com
-$ pgadmin4
+admin@admin.com
+pgadmin4
 ```
 
 ## Test Plan
@@ -57,15 +68,24 @@ $ pgadmin4
 Implement unit testing using Jest, mock /services and /services/:id
 
 Example Test Cases
-/services
+GET /services
 
-/services?name=2
+GET /services?name=2
 
-/services?sortBy=name&sortOrder=DESC
+GET /services?sortBy=name&sortOrder=DESC
 
-/services/:id
+GET /services/:id
 
-/services/:id/versions
+GET /services/:id/versions
+
+POST /services
+
+```bash
+{
+  "name": "Test",
+  "description": "Test"
+}
+```
 
 ## Design Considerations
 
